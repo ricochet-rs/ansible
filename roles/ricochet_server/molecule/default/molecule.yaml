@@ -1,0 +1,33 @@
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+platforms:
+  - name: alma9
+    image: cr.codefloe.com/docker.io/almalinux:9
+    pre_build_image: true
+    privileged: true
+    command: /sbin/init
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    tmpfs:
+      - /run
+      - /tmp
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/../
+  config_options:
+    defaults:
+      callbacks_enabled: profile_tasks
+  inventory:
+    host_vars:
+      alma9:
+        ansible_user: root
+
+verifier:
+  name: ansible

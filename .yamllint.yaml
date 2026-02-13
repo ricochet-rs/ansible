@@ -1,0 +1,17 @@
+rules:
+  comments:
+    require-starting-space: false
+    ignore-shebangs: true
+    min-spaces-from-content: 1
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+  document-start:
+    present: false
+  indentation:
+    spaces: 2
+    indent-sequences: true
+  line-length:
+    max: 500
+  new-lines:
+    type: unix

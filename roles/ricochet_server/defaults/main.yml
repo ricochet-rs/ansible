@@ -1,0 +1,97 @@
+---
+# @var ricochet_mode:description: >
+# Installation mode.
+# `systemd` installs via OS packages and manages the service with systemd.
+# `docker` runs one or more container instances via Docker Compose.
+# @end
+# @var ricochet_mode:type: string
+# @var ricochet_mode:example: "docker"
+ricochet_mode: "systemd"
+
+# @var ricochet_version:description: >
+# Version of ricochet-server to install.
+# Used as the package version (systemd mode) or image tag (docker mode).
+# @end
+# @var ricochet_version:type: string
+# @var ricochet_version:example: "0.1.0"
+ricochet_version: "0.1.2"
+
+# @var ricochet_package_url_base:description: >
+# Base URL for downloading ricochet-server OS packages.
+# @end
+# @var ricochet_package_url_base:type: string
+ricochet_package_url_base: "https://hel1.your-objectstorage.com/ricochet-server"
+
+# @var ricochet_config:description: >
+# Configuration dictionary rendered as TOML to `ricochet-config.toml`.
+# In systemd mode this is written to `/var/lib/ricochet/ricochet-config.toml`.
+# In docker mode, set per-instance config via `ricochet_instances[].config` instead.
+# @end
+# @var ricochet_config:type: dict
+# @var ricochet_config:example: >
+# ricochet_config:
+#   auth:
+#     oidc:
+#       issuer_url: "https://idp.example.com/"
+#       client_id: "ricochet"
+#       client_secret: "secret"
+#       redirect_url: "https://ricochet.example.com/oauth/callback"
+# @end
+# @var ricochet_deploy:description: >
+# Whether to actually deploy (install packages and start services in systemd mode,
+# or run `docker compose up` in docker mode).
+# Set to `false` to only generate configuration files without deploying.
+# @end
+# @var ricochet_deploy:type: bool
+ricochet_deploy: true
+
+ricochet_config: {}
+
+# -- Docker mode variables --
+
+# @var ricochet_docker_image:description: >
+# Container image to use in docker mode.
+# Can be overridden per instance via `ricochet_instances[].image`.
+# @end
+# @var ricochet_docker_image:type: string
+ricochet_docker_image: "ricochetrs/ricochet-server"
+
+# @var ricochet_base_dir:description: >
+# Base directory on the host for docker instance data.
+# Each instance creates a subdirectory under this path.
+# @end
+# @var ricochet_base_dir:type: string
+ricochet_base_dir: "/opt/ricochet"
+
+# @var ricochet_instances:description: >
+# List of ricochet-server instances to run in docker mode.
+# Each item defines one container with its own config, port, and optional overrides.
+# Multiple instances allow running separate ricochet-server environments on the same host.
+# @end
+# @var ricochet_instances:type: list
+# @var ricochet_instances:example: >
+# ricochet_instances:
+#   - name: production
+#     port: 6188
+#     config:
+#       auth:
+#         oidc:
+#           issuer_url: "https://idp.example.com/"
+#           client_id: "ricochet-prod"
+#           client_secret: "secret-prod"
+#           redirect_url: "https://ricochet.example.com/oauth/callback"
+#   - name: staging
+#     port: 6189
+#     config:
+#       auth:
+#         oidc:
+#           issuer_url: "https://idp.example.com/"
+#           client_id: "ricochet-staging"
+#           client_secret: "secret-staging"
+#           redirect_url: "https://staging.ricochet.example.com/oauth/callback"
+#     extra_volumes:
+#       - "/data/staging:/var/lib/ricochet/extra:rw"
+#     extra_env:
+#       RUST_LOG: "debug"
+# @end
+ricochet_instances: []

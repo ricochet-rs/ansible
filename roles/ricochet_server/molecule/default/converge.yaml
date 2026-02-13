@@ -1,0 +1,62 @@
+- name: Converge
+  hosts: all
+  become: true
+
+  vars:
+    # Don't download packages or start services in CI
+    ricochet_deploy: false
+    ricochet_mode: docker
+    ricochet_version: "0.1.2"
+    ricochet_instances:
+      - name: test-primary
+        port: 6188
+        config:
+          auth:
+            oidc:
+              issuer_url: "https://idp.example.com/"
+              client_id: "ricochet-primary"
+              client_secret: "test-secret-primary"
+              redirect_url: "https://ricochet.example.com/oauth/callback"
+      - name: test-secondary
+        port: 6189
+        config:
+          auth:
+            oidc:
+              issuer_url: "https://idp.example.com/"
+              client_id: "ricochet-secondary"
+              client_secret: "test-secret-secondary"
+              redirect_url: "https://staging.ricochet.example.com/oauth/callback"
+        extra_volumes:
+          - "/tmp/extra:/var/lib/ricochet/extra:rw"
+        extra_env:
+          RUST_LOG: "debug"
+
+  tasks:
+    - name: Include ricochet role
+      ansible.builtin.include_role:
+        name: ricochet
+
+  # Also test systemd mode config templating
+- name: Converge systemd
+  hosts: all
+  become: true
+
+  vars:
+    ricochet_deploy: false
+    ricochet_mode: systemd
+    ricochet_version: "0.1.2"
+    ricochet_config:
+      auth:
+        oidc:
+          issuer_url: "https://idp.example.com/"
+          client_id: "ricochet-systemd"
+          client_secret: "test-secret-systemd"
+          redirect_url: "https://ricochet.example.com/oauth/callback"
+      server:
+        port: 6188
+        log_level: "info"
+
+  tasks:
+    - name: Include ricochet role
+      ansible.builtin.include_role:
+        name: ricochet

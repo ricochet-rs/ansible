@@ -1,0 +1,12 @@
+skip_list:
+  - no-tabs  # Most files should not contain tabs
+  - name[casing]
+  - risky-shell-pipe
+  - no-changed-when
+  - var-naming[no-role-prefix] # TODO
+  - yaml[indentation]
+  - galaxy[no-changelog]
+
+# otherwise ansible-lint scans the roles/collections from requirements.yml
+exclude_paths:
+  - collections/

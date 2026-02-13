@@ -1,0 +1,27 @@
+when:
+  - event: pull_request
+  - event: push
+    branch: ${CI_REPO_DEFAULT_BRANCH}
+  - event: tag
+
+steps:
+  - name: editorconfig
+    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.6.1
+    depends_on: []
+
+  - name: prettier
+    image: reg.ricochet.rs/docker.io/woodpeckerci/plugin-prettier:1.4.1
+    pull: true
+    depends_on: []
+    settings:
+      plugins:
+        - "prettier-plugin-tailwindcss"
+        - "@ianvs/prettier-plugin-sort-imports"
+
+  - name: commitlint
+    when:
+      - event: pull_request
+      - event: pull_request_edited
+    image: reg.ricochet.rs/docker.io/commitlint/commitlint:20.4.1
+    commands:
+      - echo $${CI_COMMIT_PULL_REQUEST_TITLE} | commitlint

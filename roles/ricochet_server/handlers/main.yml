@@ -1,0 +1,7 @@
+---
+- name: Restart ricochet-server
+  ansible.builtin.systemd_service:
+    name: ricochet-server.service
+    state: restarted
+    daemon_reload: true
+  when: ricochet_mode == "systemd"

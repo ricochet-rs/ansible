@@ -1,0 +1,20 @@
+---
+- name: Validate ricochet_mode
+  ansible.builtin.assert:
+    that:
+      - ricochet_mode in ["systemd", "docker"]
+    fail_msg: "ricochet_mode must be 'systemd' or 'docker', got '{{ ricochet_mode }}'"
+
+- name: Validate ricochet_version is set
+  ansible.builtin.assert:
+    that:
+      - ricochet_version | length > 0
+    fail_msg: "ricochet_version must be set"
+
+- name: Include systemd tasks
+  ansible.builtin.include_tasks: systemd.yml
+  when: ricochet_mode == "systemd"
+
+- name: Include docker tasks
+  ansible.builtin.include_tasks: docker.yml
+  when: ricochet_mode == "docker"

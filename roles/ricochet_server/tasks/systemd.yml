@@ -1,0 +1,63 @@
+---
+- name: Set package filename (Debian)
+  ansible.builtin.set_fact:
+    _ricochet_pkg_filename: "ricochet-server_{{ ricochet_version }}-1_{{ ansible_facts['dpkg_arch'] | default(ansible_facts['architecture']) }}.deb"
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Set package filename (RedHat)
+  ansible.builtin.set_fact:
+    _ricochet_pkg_filename: "ricochet-server-{{ ricochet_version }}-1.el{{ ansible_facts['distribution_major_version'] }}.{{ ansible_facts['architecture'] }}.rpm"
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Download ricochet-server package
+  ansible.builtin.get_url:
+    url: "{{ ricochet_package_url_base }}/{{ ricochet_version }}/{{ _ricochet_pkg_filename }}"
+    dest: "/tmp/{{ _ricochet_pkg_filename }}"
+    mode: "0644"
+  when: ricochet_deploy
+
+- name: Install ricochet-server package (Debian)
+  ansible.builtin.apt:
+    deb: "/tmp/{{ _ricochet_pkg_filename }}"
+    state: present
+  when: ricochet_deploy and ansible_facts['os_family'] == "Debian"
+
+- name: Install ricochet-server package (RedHat)
+  ansible.builtin.dnf:
+    name: "/tmp/{{ _ricochet_pkg_filename }}"
+    state: present
+    disable_gpg_check: true
+  when: ricochet_deploy and ansible_facts['os_family'] == "RedHat"
+
+- name: Ensure ricochet data directory exists
+  ansible.builtin.file:
+    path: /var/lib/ricochet
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Template ricochet-config.toml
+  ansible.builtin.template:
+    src: ricochet-config.toml.j2
+    dest: /var/lib/ricochet/ricochet-config.toml
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    _ricochet_config: "{{ ricochet_config }}"
+  notify: Restart ricochet-server
+
+- name: Enable and start ricochet-server
+  ansible.builtin.systemd_service:
+    name: ricochet-server.service
+    state: started
+    enabled: true
+    daemon_reload: true
+  when: ricochet_deploy
+
+- name: Clean up downloaded package
+  ansible.builtin.file:
+    path: "/tmp/{{ _ricochet_pkg_filename }}"
+    state: absent
+  when: ricochet_deploy

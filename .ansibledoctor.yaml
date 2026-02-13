@@ -1,0 +1,12 @@
+template:
+  name: readme
+  src: local>./ansibledoctor/templates
+  options:
+    tabulate_vars: true
+
+logging:
+  level: "info"
+
+renderer:
+  include_header: HEADER.md
+  force_overwrite: true

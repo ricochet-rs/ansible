@@ -1,0 +1,25 @@
+{{ ansible_managed | comment }}
+---
+services:
+  ricochet-server:
+    image: {{ item.image | default(ricochet_docker_image) }}:{{ ricochet_version }}
+    container_name: ricochet-{{ item.name }}
+    restart: unless-stopped
+    ports:
+      - "{{ item.port | default(6188) }}:6188"
+    volumes:
+      - ./ricochet-config.toml:/var/lib/ricochet/ricochet-config.toml:ro
+      - ricochet-data:/var/lib/ricochet/data
+{% for vol in item.extra_volumes | default([]) %}
+      - {{ vol }}
+{% endfor %}
+{% if item.extra_env | default({}) %}
+    environment:
+{% for key, value in (item.extra_env | default({})).items() %}
+      {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
+
+volumes:
+  ricochet-data:
+    name: ricochet-{{ item.name }}-data

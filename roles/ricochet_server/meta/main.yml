@@ -1,0 +1,27 @@
+---
+galaxy_info:
+  role_name: ricochet
+  author: Patrick Schratz
+  description: Install and configure ricochet-server via systemd or Docker
+  license: AGPL-3.0-or-later
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+        - trixie
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+    - name: EL
+      versions:
+        - "9"
+        - "10"
+  galaxy_tags:
+    - ricochet
+    - workbench
+    - docker
+    - systemd
+
+dependencies: []

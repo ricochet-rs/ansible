@@ -1,0 +1,26 @@
+{{ ansible_managed | comment }}
+{% macro render_toml(data, prefix='') %}
+{% for key, value in data.items() %}
+{% if value is mapping %}
+{% if prefix %}
+
+[{{ prefix }}.{{ key }}]
+{% else %}
+
+[{{ key }}]
+{% endif %}
+{{ render_toml(value, (prefix ~ '.' ~ key) if prefix else key) }}
+{% elif value is iterable and value is not string %}
+{{ key }} = {{ value | to_json }}
+{% elif value is sameas true %}
+{{ key }} = true
+{% elif value is sameas false %}
+{{ key }} = false
+{% elif value is number %}
+{{ key }} = {{ value }}
+{% else %}
+{{ key }} = "{{ value }}"
+{% endif %}
+{% endfor %}
+{% endmacro %}
+{{ render_toml(_ricochet_config) }}

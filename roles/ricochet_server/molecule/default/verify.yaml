@@ -1,0 +1,183 @@
+- name: Verify docker mode
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+    # -- Docker mode: directory structure --
+
+    - name: Check primary instance directory exists
+      ansible.builtin.stat:
+        path: /opt/ricochet/test-primary
+      register: primary_dir
+      failed_when: not primary_dir.stat.exists or not primary_dir.stat.isdir
+
+    - name: Check secondary instance directory exists
+      ansible.builtin.stat:
+        path: /opt/ricochet/test-secondary
+      register: secondary_dir
+      failed_when: not secondary_dir.stat.exists or not secondary_dir.stat.isdir
+
+    # -- Docker mode: config files --
+
+    - name: Check primary config file exists
+      ansible.builtin.stat:
+        path: /opt/ricochet/test-primary/ricochet-config.toml
+      register: primary_config
+      failed_when: not primary_config.stat.exists
+
+    - name: Check primary config file permissions
+      ansible.builtin.stat:
+        path: /opt/ricochet/test-primary/ricochet-config.toml
+      register: primary_config_perms
+      failed_when: primary_config_perms.stat.mode != "0644"
+
+    - name: Read primary config file
+      ansible.builtin.slurp:
+        src: /opt/ricochet/test-primary/ricochet-config.toml
+      register: primary_config_content
+
+    - name: Verify primary config contains OIDC settings
+      ansible.builtin.assert:
+        that:
+          - "'[auth.oidc]' in (primary_config_content.content | b64decode)"
+          - "'ricochet-primary' in (primary_config_content.content | b64decode)"
+          - "'test-secret-primary' in (primary_config_content.content | b64decode)"
+        fail_msg: "Primary config missing expected OIDC configuration"
+
+    - name: Check secondary config file exists
+      ansible.builtin.stat:
+        path: /opt/ricochet/test-secondary/ricochet-config.toml
+      register: secondary_config
+      failed_when: not secondary_config.stat.exists
+
+    - name: Read secondary config file
+      ansible.builtin.slurp:
+        src: /opt/ricochet/test-secondary/ricochet-config.toml
+      register: secondary_config_content
+
+    - name: Verify secondary config contains different OIDC settings
+      ansible.builtin.assert:
+        that:
+          - "'ricochet-secondary' in (secondary_config_content.content | b64decode)"
+          - "'test-secret-secondary' in (secondary_config_content.content | b64decode)"
+        fail_msg: "Secondary config missing expected OIDC configuration"
+
+    # -- Docker mode: docker-compose files --
+
+    - name: Check primary docker-compose file exists
+      ansible.builtin.stat:
+        path: /opt/ricochet/test-primary/docker-compose.yml
+      register: primary_compose
+      failed_when: not primary_compose.stat.exists
+
+    - name: Read primary docker-compose file
+      ansible.builtin.slurp:
+        src: /opt/ricochet/test-primary/docker-compose.yml
+      register: primary_compose_content
+
+    - name: Verify primary docker-compose content
+      ansible.builtin.assert:
+        that:
+          - "'ricochetrs/ricochet-server:0.1.2' in (primary_compose_content.content | b64decode)"
+          - "'ricochet-test-primary' in (primary_compose_content.content | b64decode)"
+          - "'6188:6188' in (primary_compose_content.content | b64decode)"
+        fail_msg: "Primary docker-compose missing expected content"
+
+    - name: Check secondary docker-compose file exists
+      ansible.builtin.stat:
+        path: /opt/ricochet/test-secondary/docker-compose.yml
+      register: secondary_compose
+      failed_when: not secondary_compose.stat.exists
+
+    - name: Read secondary docker-compose file
+      ansible.builtin.slurp:
+        src: /opt/ricochet/test-secondary/docker-compose.yml
+      register: secondary_compose_content
+
+    - name: Verify secondary docker-compose has correct port
+      ansible.builtin.assert:
+        that:
+          - "'6189:6188' in (secondary_compose_content.content | b64decode)"
+        fail_msg: "Secondary docker-compose missing expected port mapping"
+
+    - name: Verify secondary docker-compose has extra volumes
+      ansible.builtin.assert:
+        that:
+          - "'/tmp/extra:/var/lib/ricochet/extra:rw' in (secondary_compose_content.content | b64decode)"
+        fail_msg: "Secondary docker-compose missing expected extra volume"
+
+    - name: Verify secondary docker-compose has extra env
+      ansible.builtin.assert:
+        that:
+          - "'RUST_LOG' in (secondary_compose_content.content | b64decode)"
+          - "'debug' in (secondary_compose_content.content | b64decode)"
+        fail_msg: "Secondary docker-compose missing expected environment variable"
+
+    # -- Docker mode: instance isolation --
+
+    - name: Verify instances have separate named volumes
+      ansible.builtin.assert:
+        that:
+          - "'ricochet-test-primary-data' in (primary_compose_content.content | b64decode)"
+          - "'ricochet-test-secondary-data' in (secondary_compose_content.content | b64decode)"
+        fail_msg: "Instances should have separate named volumes"
+
+- name: Verify systemd mode
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+    # -- Systemd mode: config file --
+
+    - name: Check systemd config file exists
+      ansible.builtin.stat:
+        path: /var/lib/ricochet/ricochet-config.toml
+      register: systemd_config
+      failed_when: not systemd_config.stat.exists
+
+    - name: Check systemd config file permissions
+      ansible.builtin.stat:
+        path: /var/lib/ricochet/ricochet-config.toml
+      register: systemd_config_perms
+      failed_when: systemd_config_perms.stat.mode != "0644"
+
+    - name: Check systemd config file ownership
+      ansible.builtin.stat:
+        path: /var/lib/ricochet/ricochet-config.toml
+      register: systemd_config_owner
+      failed_when: systemd_config_owner.stat.pw_name != "root"
+
+    - name: Read systemd config file
+      ansible.builtin.slurp:
+        src: /var/lib/ricochet/ricochet-config.toml
+      register: systemd_config_content
+
+    - name: Verify systemd config contains OIDC section
+      ansible.builtin.assert:
+        that:
+          - "'[auth.oidc]' in (systemd_config_content.content | b64decode)"
+          - "'ricochet-systemd' in (systemd_config_content.content | b64decode)"
+          - "'test-secret-systemd' in (systemd_config_content.content | b64decode)"
+        fail_msg: "Systemd config missing expected OIDC configuration"
+
+    - name: Verify systemd config contains server section
+      ansible.builtin.assert:
+        that:
+          - "'[server]' in (systemd_config_content.content | b64decode)"
+          - "'port = 6188' in (systemd_config_content.content | b64decode)"
+          - "'log_level = \"info\"' in (systemd_config_content.content | b64decode)"
+        fail_msg: "Systemd config missing expected server configuration"
+
+    - name: Check data directory exists
+      ansible.builtin.stat:
+        path: /var/lib/ricochet
+      register: data_dir
+      failed_when: not data_dir.stat.exists or not data_dir.stat.isdir
+
+    - name: Check data directory permissions
+      ansible.builtin.stat:
+        path: /var/lib/ricochet
+      register: data_dir_perms
+      failed_when: data_dir_perms.stat.mode != "0755"

@@ -1,0 +1,45 @@
+---
+- name: Validate ricochet_instances is not empty
+  ansible.builtin.assert:
+    that:
+      - ricochet_instances | length > 0
+    fail_msg: "ricochet_instances must contain at least one instance in docker mode"
+
+- name: Create instance directories
+  ansible.builtin.file:
+    path: "{{ ricochet_base_dir }}/{{ item.name }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ ricochet_instances }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Template instance config files
+  ansible.builtin.template:
+    src: ricochet-config.toml.j2
+    dest: "{{ ricochet_base_dir }}/{{ item.name }}/ricochet-config.toml"
+    mode: "0644"
+  vars:
+    _ricochet_config: "{{ item.config | default({}) }}"
+  loop: "{{ ricochet_instances }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Template docker-compose files
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ ricochet_base_dir }}/{{ item.name }}/docker-compose.yml"
+    mode: "0644"
+  loop: "{{ ricochet_instances }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Deploy docker compose instances
+  community.docker.docker_compose_v2:
+    project_src: "{{ ricochet_base_dir }}/{{ item.name }}"
+    state: present
+    pull: always
+  loop: "{{ ricochet_instances }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: ricochet_deploy

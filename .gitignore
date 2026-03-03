@@ -15,3 +15,5 @@ collections/
 .DS_Store
 .ansible/
 .cache/
+CHANGELOG.md
+*.tar.gz

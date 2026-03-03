@@ -43,7 +43,7 @@
           - "'[auth.oidc]' in (primary_config_content.content | b64decode)"
           - "'ricochet-primary' in (primary_config_content.content | b64decode)"
           - "'test-secret-primary' in (primary_config_content.content | b64decode)"
-        fail_msg: "Primary config missing expected OIDC configuration"
+        fail_msg: 'Primary config missing expected OIDC configuration'
 
     - name: Check secondary config file exists
       ansible.builtin.stat:
@@ -61,7 +61,7 @@
         that:
           - "'ricochet-secondary' in (secondary_config_content.content | b64decode)"
           - "'test-secret-secondary' in (secondary_config_content.content | b64decode)"
-        fail_msg: "Secondary config missing expected OIDC configuration"
+        fail_msg: 'Secondary config missing expected OIDC configuration'
 
     # -- Docker mode: docker-compose files --
 
@@ -82,7 +82,7 @@
           - "'ricochetrs/ricochet-server:0.1.2' in (primary_compose_content.content | b64decode)"
           - "'ricochet-test-primary' in (primary_compose_content.content | b64decode)"
           - "'6188:6188' in (primary_compose_content.content | b64decode)"
-        fail_msg: "Primary docker-compose missing expected content"
+        fail_msg: 'Primary docker-compose missing expected content'
 
     - name: Check secondary docker-compose file exists
       ansible.builtin.stat:
@@ -99,20 +99,20 @@
       ansible.builtin.assert:
         that:
           - "'6189:6188' in (secondary_compose_content.content | b64decode)"
-        fail_msg: "Secondary docker-compose missing expected port mapping"
+        fail_msg: 'Secondary docker-compose missing expected port mapping'
 
     - name: Verify secondary docker-compose has extra volumes
       ansible.builtin.assert:
         that:
           - "'/tmp/extra:/var/lib/ricochet/extra:rw' in (secondary_compose_content.content | b64decode)"
-        fail_msg: "Secondary docker-compose missing expected extra volume"
+        fail_msg: 'Secondary docker-compose missing expected extra volume'
 
     - name: Verify secondary docker-compose has extra env
       ansible.builtin.assert:
         that:
           - "'RUST_LOG' in (secondary_compose_content.content | b64decode)"
           - "'debug' in (secondary_compose_content.content | b64decode)"
-        fail_msg: "Secondary docker-compose missing expected environment variable"
+        fail_msg: 'Secondary docker-compose missing expected environment variable'
 
     # -- Docker mode: instance isolation --
 
@@ -121,7 +121,7 @@
         that:
           - "'ricochet-test-primary-data' in (primary_compose_content.content | b64decode)"
           - "'ricochet-test-secondary-data' in (secondary_compose_content.content | b64decode)"
-        fail_msg: "Instances should have separate named volumes"
+        fail_msg: 'Instances should have separate named volumes'
 
 - name: Verify systemd mode
   hosts: all
@@ -160,15 +160,15 @@
           - "'[auth.oidc]' in (systemd_config_content.content | b64decode)"
           - "'ricochet-systemd' in (systemd_config_content.content | b64decode)"
           - "'test-secret-systemd' in (systemd_config_content.content | b64decode)"
-        fail_msg: "Systemd config missing expected OIDC configuration"
+        fail_msg: 'Systemd config missing expected OIDC configuration'
 
     - name: Verify systemd config contains server section
       ansible.builtin.assert:
         that:
           - "'[server]' in (systemd_config_content.content | b64decode)"
           - "'port = 6188' in (systemd_config_content.content | b64decode)"
-          - "'log_level = \"info\"' in (systemd_config_content.content | b64decode)"
-        fail_msg: "Systemd config missing expected server configuration"
+          - '''log_level = "info"'' in (systemd_config_content.content | b64decode)'
+        fail_msg: 'Systemd config missing expected server configuration'
 
     - name: Check data directory exists
       ansible.builtin.stat:

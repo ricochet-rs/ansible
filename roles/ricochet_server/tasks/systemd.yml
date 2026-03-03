@@ -1,4 +1,3 @@
----
 - name: Set package filename (Debian)
   ansible.builtin.set_fact:
     _ricochet_pkg_filename: "ricochet-server_{{ ricochet_version }}-1_{{ ansible_facts['dpkg_arch'] | default(ansible_facts['architecture']) }}.deb"
@@ -11,20 +10,20 @@
 
 - name: Download ricochet-server package
   ansible.builtin.get_url:
-    url: "{{ ricochet_package_url_base }}/{{ ricochet_version }}/{{ _ricochet_pkg_filename }}"
-    dest: "/tmp/{{ _ricochet_pkg_filename }}"
-    mode: "0644"
+    url: '{{ ricochet_package_url_base }}/{{ ricochet_version }}/{{ _ricochet_pkg_filename }}'
+    dest: '/tmp/{{ _ricochet_pkg_filename }}'
+    mode: '0644'
   when: ricochet_deploy
 
 - name: Install ricochet-server package (Debian)
   ansible.builtin.apt:
-    deb: "/tmp/{{ _ricochet_pkg_filename }}"
+    deb: '/tmp/{{ _ricochet_pkg_filename }}'
     state: present
   when: ricochet_deploy and ansible_facts['os_family'] == "Debian"
 
 - name: Install ricochet-server package (RedHat)
   ansible.builtin.dnf:
-    name: "/tmp/{{ _ricochet_pkg_filename }}"
+    name: '/tmp/{{ _ricochet_pkg_filename }}'
     state: present
     disable_gpg_check: true
   when: ricochet_deploy and ansible_facts['os_family'] == "RedHat"
@@ -35,7 +34,7 @@
     state: directory
     owner: root
     group: root
-    mode: "0755"
+    mode: '0755'
 
 - name: Template ricochet-config.toml
   ansible.builtin.template:
@@ -43,9 +42,9 @@
     dest: /var/lib/ricochet/ricochet-config.toml
     owner: root
     group: root
-    mode: "0644"
+    mode: '0644'
   vars:
-    _ricochet_config: "{{ ricochet_config }}"
+    _ricochet_config: '{{ ricochet_config }}'
   notify: Restart ricochet-server
 
 - name: Enable and start ricochet-server
@@ -58,6 +57,6 @@
 
 - name: Clean up downloaded package
   ansible.builtin.file:
-    path: "/tmp/{{ _ricochet_pkg_filename }}"
+    path: '/tmp/{{ _ricochet_pkg_filename }}'
     state: absent
   when: ricochet_deploy

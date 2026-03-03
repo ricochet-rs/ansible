@@ -1,4 +1,3 @@
----
 - name: Restart ricochet-server
   ansible.builtin.systemd_service:
     name: ricochet-server.service

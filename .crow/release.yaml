@@ -36,7 +36,7 @@ steps:
     when:
       event: tag
 
-  "Create release":
+  'Create release':
     image: reg.ricochet.rs/docker.io/woodpeckerci/plugin-release:0.2.6
     settings:
       note: CHANGELOG.md
@@ -48,7 +48,7 @@ steps:
     when:
       event: tag
 
-  "Push changes to repo":
+  'Push changes to repo':
     image: reg.ricochet.rs/docker.io/appleboy/drone-git-push:1.2.1
     settings:
       remote: ${CI_REPO_CLONE_SSH_URL}
@@ -56,7 +56,7 @@ steps:
       commit: true
       ssh_key:
         from_secret: ricochet-bot-deploy-key
-      commit_message: "[skip ci] Update galaxy.yml after release"
+      commit_message: '[skip ci] Update galaxy.yml after release'
       author_name: ricochet-bot
       author_email: droid@ricochet.rs
     when:

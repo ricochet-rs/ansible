@@ -7,6 +7,9 @@ default: true
 # Path to configuration file to extend
 extends: null
 
+# MD034/no-bare-urls - Bare URL used (disabled for auto-generated role docs)
+MD034: false
+
 # MD003/heading-style/header-style - Heading style
 MD003:
   # Heading style

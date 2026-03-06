@@ -55,7 +55,7 @@ steps:
       branch: main
       commit: true
       ssh_key:
-        from_secret: ricochet-bot-deploy-key
+        from_secret: ricochet-bot-deploy-key-ansible
       commit_message: '[skip ci] Update galaxy.yml after release'
       author_name: ricochet-bot
       author_email: droid@ricochet.rs

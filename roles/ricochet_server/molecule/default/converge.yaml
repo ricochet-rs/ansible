@@ -6,7 +6,7 @@
     # Don't download packages or start services in CI
     ricochet_deploy: false
     ricochet_mode: docker
-    ricochet_version: '0.1.2'
+    ricochet_version: '0.3.0'
     ricochet_instances:
       - name: test-primary
         port: 6188
@@ -44,7 +44,7 @@
   vars:
     ricochet_deploy: false
     ricochet_mode: systemd
-    ricochet_version: '0.1.2'
+    ricochet_version: '0.3.0'
     ricochet_config:
       auth:
         oidc:

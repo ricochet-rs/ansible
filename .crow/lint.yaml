@@ -4,6 +4,9 @@ when:
     branch: ${CI_REPO_DEFAULT_BRANCH}
   - event: tag
 
+labels:
+  backend: docker
+
 steps:
   - name: editorconfig
     image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.6.1

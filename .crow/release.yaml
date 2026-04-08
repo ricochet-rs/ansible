@@ -7,6 +7,9 @@ clone:
     settings:
       tags: true
 
+labels:
+  backend: docker
+
 depends_on:
   - lint
 

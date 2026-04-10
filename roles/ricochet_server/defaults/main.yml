@@ -13,7 +13,7 @@ ricochet_mode: 'systemd'
 # @end
 # @var ricochet_version:type: string
 # @var ricochet_version:example: "0.1.0"
-ricochet_version: '0.6.1'
+ricochet_version: '0.6.2'
 
 # @var ricochet_package_url_base:description: >
 # Base URL for downloading ricochet-server OS packages.

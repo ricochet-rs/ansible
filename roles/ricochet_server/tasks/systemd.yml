@@ -1,6 +1,11 @@
 - name: Set package filename (Debian)
   ansible.builtin.set_fact:
-    _ricochet_pkg_filename: "ricochet-server_{{ ricochet_version }}-1_{{ ansible_facts['dpkg_arch'] | default(ansible_facts['architecture']) }}.deb"
+    _ricochet_pkg_filename: >-
+      ricochet-server_{{ ricochet_version }}-1_{{
+      (ansible_facts['dpkg_arch'] | default(ansible_facts['architecture']))
+      | regex_replace('^x86_64$', 'amd64')
+      | regex_replace('^aarch64$', 'arm64')
+      }}.deb
   when: ansible_facts['os_family'] == "Debian"
 
 - name: Set package filename (RedHat)

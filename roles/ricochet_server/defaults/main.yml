@@ -19,7 +19,7 @@ ricochet_version: '0.7.1'
 # Base URL for downloading ricochet-server OS packages.
 # @end
 # @var ricochet_package_url_base:type: string
-ricochet_package_url_base: 'https://hel1.your-objectstorage.com/ricochet-server'
+ricochet_package_url_base: 'https://ricochet-server.s3.eu-central-003.backblazeb2.com'
 
 # @var ricochet_config:description: >
 # Configuration dictionary rendered as TOML to `ricochet-config.toml`.

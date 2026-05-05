@@ -46,6 +46,32 @@ ricochet_deploy: true
 
 ricochet_config: {}
 
+# @var ricochet_systemd_disable_delegate:description: >
+# Disable cgroup delegation in the packaged unit to avoid leaked child processes
+# surviving service restarts and keeping listener ports bound.
+# @end
+# @var ricochet_systemd_disable_delegate:type: bool
+ricochet_systemd_disable_delegate: true
+
+# @var ricochet_systemd_timeout_stop_sec:description: >
+# Stop timeout for ricochet-server.service in systemd mode.
+# @end
+# @var ricochet_systemd_timeout_stop_sec:type: int
+ricochet_systemd_timeout_stop_sec: 120
+
+# @var ricochet_systemd_cleanup_stale_processes:description: >
+# Run a post-stop cleanup to kill stale ricochet server processes that may
+# have escaped the service cgroup on previous runs.
+# @end
+# @var ricochet_systemd_cleanup_stale_processes:type: bool
+ricochet_systemd_cleanup_stale_processes: true
+
+# @var ricochet_systemd_cleanup_match:description: >
+# Regex used by pkill -f in the post-stop cleanup.
+# @end
+# @var ricochet_systemd_cleanup_match:type: string
+ricochet_systemd_cleanup_match: '^/usr/bin/ricochet start --config /var/lib/ricochet/ricochet-config.toml$'
+
 # -- Docker mode variables --
 
 # @var ricochet_docker_image:description: >

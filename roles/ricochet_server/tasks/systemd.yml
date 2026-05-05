@@ -47,6 +47,31 @@
     _ricochet_config: '{{ ricochet_config }}'
   notify: Restart ricochet-server
 
+- name: Ensure ricochet systemd override directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/system/ricochet-server.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy ricochet systemd override
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/ricochet-server.service.d/override.conf
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [Service]
+      {% if ricochet_systemd_disable_delegate %}
+      Delegate=no
+      {% endif %}
+      TimeoutStopSec={{ ricochet_systemd_timeout_stop_sec }}s
+      {% if ricochet_systemd_cleanup_stale_processes %}
+      ExecStopPost=/bin/bash -lc '/usr/bin/pkill -9 -f "{{ ricochet_systemd_cleanup_match }}" || true'
+      {% endif %}
+  notify: Restart ricochet-server
+
 - name: Enable and start ricochet-server
   ansible.builtin.systemd_service:
     name: ricochet-server.service

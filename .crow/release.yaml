@@ -29,7 +29,7 @@ steps:
       - ansible-galaxy collection publish --token $GALAXY_TOKEN $tarball
 
   changelog:
-    image: reg.ricochet.rs/docker.io/thegeeklab/git-sv:2.1.0
+    image: reg.ricochet.rs/docker.io/thegeeklab/git-sv:2.1.1
     commands:
       - apk add --no-cache -q sed
       - git sv current-version

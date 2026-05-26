@@ -31,7 +31,7 @@
 
     - name: Create fake package cache directory
       ansible.builtin.file:
-        path: "/opt/pkg-cache/{{ ricochet_version }}"
+        path: '/opt/pkg-cache/{{ ricochet_version }}'
         state: directory
         mode: '0755'
       check_mode: false
@@ -39,7 +39,7 @@
     - name: Stage fake package file for download
       ansible.builtin.copy:
         content: "fake rpm for --check regression test\n"
-        dest: "/opt/pkg-cache/{{ ricochet_version }}/{{ _check_mode_pkg_filename }}"
+        dest: '/opt/pkg-cache/{{ ricochet_version }}/{{ _check_mode_pkg_filename }}'
         mode: '0644'
       check_mode: false
 

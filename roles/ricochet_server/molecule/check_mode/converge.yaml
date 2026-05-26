@@ -1,0 +1,49 @@
+- name: Converge (--check regression)
+  hosts: all
+  become: true
+
+  vars:
+    ricochet_deploy: true
+    ricochet_mode: systemd
+    ricochet_version: '0.8.0'
+    # Point at a local file:// URL so the (forced) download in --check does not
+    # require internet access. The install task is skipped in --check so the file
+    # content does not need to be a valid rpm.
+    ricochet_package_url_base: 'file:///opt/pkg-cache'
+    ricochet_config:
+      auth:
+        oidc:
+          issuer_url: 'https://idp.example.com/'
+          client_id: 'ricochet-check-mode'
+          client_secret: 'test-secret-check-mode'
+          redirect_url: 'https://ricochet.example.com/oauth/callback'
+      server:
+        port: 6188
+        log_level: 'info'
+
+  pre_tasks:
+    # pre_tasks must execute for real even when the play runs under --check,
+    # otherwise the fake package source is never created and get_url fails.
+    - name: Compute expected RedHat package filename
+      ansible.builtin.set_fact:
+        _check_mode_pkg_filename: "ricochet-server-{{ ricochet_version }}-1.el{{ ansible_facts['distribution_major_version'] }}.{{ ansible_facts['architecture'] }}.rpm"
+      check_mode: false
+
+    - name: Create fake package cache directory
+      ansible.builtin.file:
+        path: "/opt/pkg-cache/{{ ricochet_version }}"
+        state: directory
+        mode: '0755'
+      check_mode: false
+
+    - name: Stage fake package file for download
+      ansible.builtin.copy:
+        content: "fake rpm for --check regression test\n"
+        dest: "/opt/pkg-cache/{{ ricochet_version }}/{{ _check_mode_pkg_filename }}"
+        mode: '0644'
+      check_mode: false
+
+  tasks:
+    - name: Include ricochet role
+      ansible.builtin.include_role:
+        name: ricochet

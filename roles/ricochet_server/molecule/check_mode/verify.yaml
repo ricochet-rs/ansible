@@ -1,0 +1,43 @@
+- name: Verify --check did not touch real state
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Stat /var/lib/ricochet
+      ansible.builtin.stat:
+        path: /var/lib/ricochet
+      register: _ricochet_lib
+
+    - name: Assert /var/lib/ricochet was not created under --check
+      ansible.builtin.assert:
+        that:
+          - not _ricochet_lib.stat.exists
+        fail_msg: >-
+          /var/lib/ricochet exists after a --check run, which means a task in the
+          role created real state instead of just reporting what it would do.
+
+    - name: Stat /etc/systemd/system/ricochet-server.service.d
+      ansible.builtin.stat:
+        path: /etc/systemd/system/ricochet-server.service.d
+      register: _ricochet_override_dir
+
+    - name: Assert systemd override dir was not created under --check
+      ansible.builtin.assert:
+        that:
+          - not _ricochet_override_dir.stat.exists
+        fail_msg: >-
+          /etc/systemd/system/ricochet-server.service.d exists after --check.
+
+    - name: Stat the staged package in /tmp (must have been cleaned up)
+      ansible.builtin.stat:
+        path: "/tmp/ricochet-server-0.8.0-1.el{{ ansible_facts['distribution_major_version'] }}.{{ ansible_facts['architecture'] }}.rpm"
+      register: _tmp_pkg
+
+    - name: Assert /tmp package was cleaned up
+      ansible.builtin.assert:
+        that:
+          - not _tmp_pkg.stat.exists
+        fail_msg: >-
+          Downloaded package was left in /tmp after --check; cleanup task should
+          have removed it.

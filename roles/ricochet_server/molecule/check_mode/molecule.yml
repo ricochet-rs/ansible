@@ -1,0 +1,39 @@
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+platforms:
+  - name: alma9-check
+    image: cr.codefloe.com/docker.io/almalinux:9
+    pre_build_image: true
+    privileged: true
+    command: /sbin/init
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    tmpfs:
+      - /run
+      - /tmp
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/../
+  config_options:
+    defaults:
+      callbacks_enabled: profile_tasks
+  inventory:
+    host_vars:
+      alma9-check:
+        ansible_user: root
+  # Run converge under --check to exercise the check-mode code path end-to-end.
+  # Regression guard for the "Could not open: /tmp/<rpm>" failure when --check
+  # ran the local-file dnf install task before the install/start/restart guards
+  # were added.
+  ansible_args:
+    - --check
+
+verifier:
+  name: ansible

@@ -3,7 +3,7 @@ when:
 
 clone:
   git:
-    image: codefloe.com/crow-plugins/clone:1.0.4
+    image: codefloe.com/crow-plugins/clone:1.1.0
     settings:
       tags: true
 
@@ -29,7 +29,7 @@ steps:
       - ansible-galaxy collection publish --token $GALAXY_TOKEN $tarball
 
   changelog:
-    image: reg.ricochet.rs/docker.io/thegeeklab/git-sv:2.1.1
+    image: reg.ricochet.rs/docker.io/thegeeklab/git-sv:2.1.2
     commands:
       - apk add --no-cache -q sed
       - git sv current-version

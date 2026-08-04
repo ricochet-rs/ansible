@@ -9,7 +9,7 @@ labels:
 
 steps:
   - name: editorconfig
-    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.8.0
+    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.9.0
     depends_on: []
 
   - name: prettier

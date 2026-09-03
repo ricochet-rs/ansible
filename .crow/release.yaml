@@ -9,6 +9,7 @@ clone:
 
 labels:
   backend: docker
+  platform: linux/amd64
 
 depends_on:
   - lint

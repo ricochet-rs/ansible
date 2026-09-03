@@ -6,6 +6,7 @@ when:
 
 labels:
   backend: docker
+  platform: linux/amd64
 
 steps:
   - name: editorconfig

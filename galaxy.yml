@@ -3,7 +3,7 @@ namespace: ricochet
 
 name: ricochet
 
-version: 0.1.34
+version: 0.20.0
 
 readme: README.md
 

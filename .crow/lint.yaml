@@ -14,7 +14,7 @@ steps:
     depends_on: []
 
   - name: prettier
-    image: reg.ricochet.rs/docker.io/woodpeckerci/plugin-prettier:1.4.1
+    image: reg.ricochet.rs/docker.io/woodpeckerci/plugin-prettier:1.4.2
     pull: true
     depends_on: []
     settings:
